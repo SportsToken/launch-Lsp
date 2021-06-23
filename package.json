@@ -1,10 +1,19 @@
 {
   "name": "launch-lsp",
   "version": "1.0.0",
-  "description": "Example stub report to help launch a LSP",
-  "main": "index.js",
+  "description": "Example stub repo to help launch an LSP",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "yarn run prettier --list-different",
+    "lint-fix": "yarn run prettier --write",
+    "prettier": "prettier './**/*.js' './**/*.md'",
+    "ganache-fork": "yarn ganache-cli -l 12000000 --fork"
+  },
+  "author": "UMA Team",
+  "license": "AGPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UMAprotocol/launch-lsp.git"
   },
   "keywords": [
     "UMA",
