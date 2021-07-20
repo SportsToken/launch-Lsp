@@ -10,7 +10,7 @@ const ancillaryData = "";
 const proposerReward = 0;
 const kovanUrl = "https://kovan.infura.io/v3/81a0954561a94859a0c84f8be1d3afa6";
 const mumbaiUrl = "";
-const mnemonic = "off neither whip umbrella skill monitor wall cup style fatal device month";
+const mnemonic = "<private mnemonic>";
 const collateralToken = "0xA77a597C1b0ddA403aF54656c28bF7Bc0565351c";
 const financialProductLibrary = "0x2CcA11DbbDC3E028D6c293eA5d386eE887071C59";
 const gaspPrice = 50;
@@ -18,7 +18,7 @@ const gaspPrice = 50;
 
 
 
-async function deployAthlete(athleteName, synthSymbol, expirationTimestamp) {
+async function deployAthlete( _synthName, _synthSymbol, _expirationTimestamp, _priceIdentifier) {
   const url = kovanUrl;
 
   // See HDWalletProvider documentation: https://www.npmjs.com/package/@truffle/hdwallet-provider.
@@ -31,7 +31,7 @@ async function deployAthlete(athleteName, synthSymbol, expirationTimestamp) {
   };
 
   // Initialize web3 with an HDWalletProvider if a mnemonic was provided. Otherwise, just give it the url.
-  const web3 = new Web3(argv.mnemonic ? new HDWalletProvider(hdwalletOptions) : url);
+  const web3 = new Web3(mnemonic ? new HDWalletProvider(hdwalletOptions) : url);
   const { toWei, utf8ToHex, padRight } = web3.utils;
 
   const accounts = await web3.eth.getAccounts();
@@ -43,20 +43,20 @@ async function deployAthlete(athleteName, synthSymbol, expirationTimestamp) {
   // Grab collateral decimals.
   const collateral = new web3.eth.Contract(
     getAbi("IERC20Standard"),
-    argv.collateralToken
+    collateralToken
   );
   const decimals = (await collateral.methods.decimals().call()).toString();
 
 
   // LSP parameters. Pass in arguments to customize these.
   const lspParams = {
-    expirationTimestamp: argv.expirationTimestamp, // Timestamp that the contract will expire at.
-    collateralPerPair: argv.collateralPerPair,
-    priceIdentifier: padRight(utf8ToHex(argv.priceIdentifier.toString()), 64), // Price identifier to use.
-    syntheticName: argv.syntheticName, // Long name.
-    syntheticSymbol: argv.syntheticSymbol, // Short name.
-    collateralToken: argv.collateralToken.toString(), // Collateral token address.
-    financialProductLibrary: argv.financialProductLibrary,
+    expirationTimestamp: _expirationTimestamp, // Timestamp that the contract will expire at.
+    collateralPerPair: 1000000000000000000,
+    priceIdentifier: padRight(utf8ToHex(_priceIdentifier), 64), // Price identifier to use.
+    syntheticName: _synthName, // Long name.
+    syntheticSymbol: _synthSymbol, // Short name.
+    collateralToken: collateralToken, // Collateral token address.
+    financialProductLibrary: financialProductLibrary,
     customAncillaryData: utf8ToHex(ancillaryData), // Default to empty bytes array if no ancillary data is passed.
     prepaidProposerReward: proposerReward // Default to 0 if no prepaid proposer reward is passed.
   };
@@ -89,6 +89,4 @@ async function deployAthlete(athleteName, synthSymbol, expirationTimestamp) {
 }
 
 
-
-
- --expirationTimestamp 1643678287 --collateralPerPair 1000000000000000000 --priceIdentifier USDETH --syntheticName "Anthony Davis" --syntheticSymbol aAD 
+// TODO: Log each file to a save
