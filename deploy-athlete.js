@@ -12,14 +12,19 @@ const networkUrl = "https://rpc-mumbai.maticvigil.com";
 const fs = require('fs');
 const mnemonic = fs.readFileSync(".secret").toString().trim();
 const collateralToken = "0x8C086885624C5b823Cc6fcA7BFF54C454D6b5239";
-const financialProductLibrary = "0xC7B7029373f504949553106c9eb2dAfDd48eF086";
+const _fpl = "Linear";
 const _gasPrice = 50;
 const _networkId = 80001;
+const _collateralPerPair = 1 * 10**18;
+
+const _upperBound = '';
+const _lowerBound = '';
+const _strikePrice = '';
 // Athlete Params
 
 
 
-async function deployAthlete( _synthName, _synthSymbol, _expirationTimestamp, ancillaryData) {
+async function deployAthlete( _synthName, _synthSymbol, _expirationTimestamp, _ancillaryData) {
   
   // See HDWalletProvider documentation: https://www.npmjs.com/package/@truffle/hdwallet-provider.
   const url = networkUrl;
@@ -69,17 +74,17 @@ async function deployAthlete( _synthName, _synthSymbol, _expirationTimestamp, an
 
       // LSP parameters. Pass in arguments to customize these.
   const lspParams = {
-    pairName: argv.pairName,
-    expirationTimestamp: argv.expirationTimestamp, // Timestamp that the contract will expire at.
-    collateralPerPair: argv.collateralPerPair,  // 18 point Decimal Format
-    priceIdentifier: padRight(utf8ToHex(argv.priceIdentifier.toString()), 64), // Price identifier to use.
-    longSynthName: argv.longSynthName,
-    longSynthSymbol: argv.longSynthSymbol,
-    shortSynthName: argv.shortSynthName,
-    shortSynthSymbol: argv.shortSynthSymbol,
-    collateralToken: argv.collateralToken.toString(), // Collateral token address.
-    financialProductLibrary: financialProductLibrary,
-    customAncillaryData: utf8ToHex(ancillaryData), // Default to empty bytes array if no ancillary data is passed.
+    pairName: _synthName,
+    expirationTimestamp: _expirationTimestamp, // Timestamp that the contract will expire at.
+    collateralPerPair: _collateralPerPair,  // 18 point Decimal Format
+    priceIdentifier: padRight(utf8ToHex("SPD"), 64), // Price identifier to use.
+    longSynthName: `long_${_synthName}`,
+    longSynthSymbol: `PUT-${_synthSymbol}`,
+    shortSynthName: `short_${syntheticName}`,
+    shortSynthSymbol: `CALL-${_synthName}`,
+    collateralToken: collateralToken, // Collateral token address.
+    financialProductLibrary: _fpl,
+    customAncillaryData: utf8ToHex(_ancillaryData), // Default to empty bytes array if no ancillary data is passed.
     prepaidProposerReward: proposerReward, // Default to 0 if no prepaid proposer reward is passed.
     optimisticOracleLivenessTime: livenessTime,
     optimisticOracleProposerBond: proposerBond
@@ -100,12 +105,12 @@ async function deployAthlete( _synthName, _synthSymbol, _expirationTimestamp, an
       console.log("Setting FPL parameters...");
       // Set the deployed FPL address and lowerBound.
       console.log("fpl address:", fpl);
-      const fplName = argv.fpl + "LongShortPairFinancialProductLibrary";
+      const fplName = _fpl + "LongShortPairFinancialProductLibrary";
       console.log("fpl name:", fplName);
       const deployedFPL = new web3.eth.Contract(getAbi(fplName), fpl);
       const lowerBound = argv.lowerBound ? argv.lowerBound : argv.strikePrice;
       // Set parameters depending on FPL type.
-      if (argv.fpl == 'BinaryOption' || argv.fpl == 'CappedYieldDollar' || argv.fpl == 'CoveredCall' || argv.fpl == 'SimpleSuccessToken') {
+      if (_fpl == 'BinaryOption' || _fpl == 'CappedYieldDollar' || _fpl == 'CoveredCall' || _fpl == 'SimpleSuccessToken') {
         const fplParams = [address, lowerBound];
         console.log("fpl params:", {
           address: fplParams[0],
@@ -114,7 +119,7 @@ async function deployAthlete( _synthName, _synthSymbol, _expirationTimestamp, an
         const { transactionHash } = await deployedFPL.methods.setLongShortPairParameters(...fplParams).send(transactionOptions);
         console.log("Financial product library parameters set in transaction:", transactionHash);
       }
-      if (argv.fpl == 'RangeBond' || argv.fpl == 'Linear') {
+      if (_fpl == 'RangeBond' || _fpl == 'Linear') {
         const upperBound = argv.upperBound;
         const fplParams = [address, upperBound, lowerBound];
         console.log("fpl params:", {
@@ -125,7 +130,7 @@ async function deployAthlete( _synthName, _synthSymbol, _expirationTimestamp, an
         const { transactionHash } = await deployedFPL.methods.setLongShortPairParameters(...fplParams).send(transactionOptions);
         console.log("Financial product library parameters set in transaction:", transactionHash);
       }
-      if (argv.fpl == 'SuccessToken') {
+      if (_fpl == 'SuccessToken') {
         const basePercentage = argv.basePercentage;
         const fplParams = [address, lowerBound, basePercentage];
         console.log("fpl params:", {
@@ -158,7 +163,7 @@ async function deployAthlete( _synthName, _synthSymbol, _expirationTimestamp, an
   // Since the simulated transaction succeeded, send the real one to the network.
   const { transactionHash } = await lspCreator.methods.createLongShortPair(lspParams).send(transactionOptions);
   console.log("Deployed in transaction:", transactionHash);
-  
+
   process.exit(0);
 }
 
