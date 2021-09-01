@@ -20,6 +20,7 @@ const _collateralPerPair = 1 * 10**18;
 const _upperBound = '';
 const _lowerBound = '';
 const _strikePrice = '';
+const _basePercentage = '';
 // Athlete Params
 
 
@@ -108,7 +109,7 @@ async function deployAthlete( _synthName, _synthSymbol, _expirationTimestamp, _a
       const fplName = _fpl + "LongShortPairFinancialProductLibrary";
       console.log("fpl name:", fplName);
       const deployedFPL = new web3.eth.Contract(getAbi(fplName), fpl);
-      const lowerBound = argv.lowerBound ? argv.lowerBound : argv.strikePrice;
+      const lowerBound = _lowerBound ? _lowerBound : _strikePrice;
       // Set parameters depending on FPL type.
       if (_fpl == 'BinaryOption' || _fpl == 'CappedYieldDollar' || _fpl == 'CoveredCall' || _fpl == 'SimpleSuccessToken') {
         const fplParams = [address, lowerBound];
@@ -120,7 +121,7 @@ async function deployAthlete( _synthName, _synthSymbol, _expirationTimestamp, _a
         console.log("Financial product library parameters set in transaction:", transactionHash);
       }
       if (_fpl == 'RangeBond' || _fpl == 'Linear') {
-        const upperBound = argv.upperBound;
+        const upperBound = _upperBound;
         const fplParams = [address, upperBound, lowerBound];
         console.log("fpl params:", {
           address: fplParams[0],
@@ -131,7 +132,7 @@ async function deployAthlete( _synthName, _synthSymbol, _expirationTimestamp, _a
         console.log("Financial product library parameters set in transaction:", transactionHash);
       }
       if (_fpl == 'SuccessToken') {
-        const basePercentage = argv.basePercentage;
+        const basePercentage = _basePercentage;
         const fplParams = [address, lowerBound, basePercentage];
         console.log("fpl params:", {
           address: fplParams[0],
