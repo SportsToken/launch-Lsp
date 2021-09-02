@@ -10,6 +10,7 @@ const ancillaryData = "";
 const proposerReward = 0;
 const networkUrl = "https://rpc-mumbai.maticvigil.com";
 const fs = require('fs');
+const { Http2ServerRequest } = require("http2");
 const mnemonic = fs.readFileSync(".secret").toString().trim();
 const collateralToken = "0x8C086885624C5b823Cc6fcA7BFF54C454D6b5239";
 const _fpl = "Linear";
@@ -81,7 +82,7 @@ async function deployAthlete( _synthName, _synthSymbol, _expirationTimestamp, _a
     priceIdentifier: padRight(utf8ToHex("SPD"), 64), // Price identifier to use.
     longSynthName: `long_${_synthName}`,
     longSynthSymbol: `PUT-${_synthSymbol}`,
-    shortSynthName: `short_${syntheticName}`,
+    shortSynthName: `short_${_synthName}`,
     shortSynthSymbol: `CALL-${_synthName}`,
     collateralToken: collateralToken, // Collateral token address.
     financialProductLibrary: _fpl,
@@ -170,6 +171,13 @@ async function deployAthlete( _synthName, _synthSymbol, _expirationTimestamp, _a
 
 
 // TODO: Log each file to a save
-deployAthlete("Derrick Henry", "aDH", "1628623703", "0001 0001").catch(err => {
-  console.error(err);
-});
+
+const axios = require('axios');
+
+axios.get("SPORTSDATA WEBSITE").then((JSONDATA) => {
+  JSONDATA.forEach(element => {
+    deployAthlete("Derrick Henry", "aDH", "1628623703", "0001 0001").catch(err => {
+      console.error(err);
+    });
+  });
+})
