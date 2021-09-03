@@ -10,21 +10,20 @@ const ancillaryData = "";
 const proposerReward = 0;
 const networkUrl = "https://rpc-mumbai.maticvigil.com";
 const fs = require('fs');
-const { Http2ServerRequest } = require("http2");
-const mnemonic = fs.readFileSync(".secret").toString().trim();
+const mnemonic = "off neither whip umbrella skill monitor wall cup style fatal device month";
 const collateralToken = "0x8C086885624C5b823Cc6fcA7BFF54C454D6b5239";
 const _fpl = "Linear";
 const _gasPrice = 50;
 const _networkId = 80001;
 const _collateralPerPair = 1 * 10**18;
 
-const _upperBound = '';
-const _lowerBound = '';
-const _strikePrice = '';
-const _basePercentage = '';
+const _upperBound = '12000000000000000000';
+const _lowerBound = '4000000000000000000';
+const _strikePrice = '5000';
+const _basePercentage = '5';
 // Athlete Params
-
-
+const livenessTime = 7200;
+const proposerBond = 7500;
 
 async function deployAthlete( _synthName, _synthSymbol, _expirationTimestamp, _ancillaryData) {
   
@@ -62,17 +61,7 @@ async function deployAthlete( _synthName, _synthSymbol, _expirationTimestamp, _a
   //#region LSP-Params
 
     // LSP parameters. Pass in arguments to customize these.
-    const lspParams = {
-      expirationTimestamp: _expirationTimestamp, // Timestamp that the contract will expire at.
-      collateralPerPair: 10000000000000,
-      priceIdentifier: padRight(utf8ToHex("SPD"), 64), // Price identifier to use.
-      syntheticName: _synthName, // Long name.
-      syntheticSymbol: _synthSymbol, // Short name.
-      collateralToken: collateralToken, // Collateral token address.
-      financialProductLibrary: financialProductLibrary,
-      customAncillaryData: utf8ToHex(ancillaryData), // Default to empty bytes array if no ancillary data is passed.
-      prepaidProposerReward: proposerReward // Default to 0 if no prepaid proposer reward is passed.
-    };
+    
 
       // LSP parameters. Pass in arguments to customize these.
   const lspParams = {
@@ -103,13 +92,13 @@ async function deployAthlete( _synthName, _synthSymbol, _expirationTimestamp, _a
   //#region FPL-Parameters
   
     // Set the FPL parameters.
-    if (fpl) {
+    if (_fpl == "Linear") {
       console.log("Setting FPL parameters...");
       // Set the deployed FPL address and lowerBound.
-      console.log("fpl address:", fpl);
+      console.log("fpl address:", _fpl);
       const fplName = _fpl + "LongShortPairFinancialProductLibrary";
       console.log("fpl name:", fplName);
-      const deployedFPL = new web3.eth.Contract(getAbi(fplName), fpl);
+      const deployedFPL = new web3.eth.Contract(getAbi(fplName), _fpl);
       const lowerBound = _lowerBound ? _lowerBound : _strikePrice;
       // Set parameters depending on FPL type.
       if (_fpl == 'BinaryOption' || _fpl == 'CappedYieldDollar' || _fpl == 'CoveredCall' || _fpl == 'SimpleSuccessToken') {
@@ -171,13 +160,6 @@ async function deployAthlete( _synthName, _synthSymbol, _expirationTimestamp, _a
 
 
 // TODO: Log each file to a save
-
-const axios = require('axios');
-
-axios.get("SPORTSDATA WEBSITE").then((JSONDATA) => {
-  JSONDATA.forEach(element => {
-    deployAthlete("Derrick Henry", "aDH", "1628623703", "0001 0001").catch(err => {
-      console.error(err);
-    });
-  });
-})
+deployAthlete("Derrick Henry", "aDH", "1628623703", "0001 0001").catch(err => {
+  console.error(err);
+});
