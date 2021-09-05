@@ -12,7 +12,7 @@ const networkUrl = "https://rpc-mumbai.maticvigil.com";
 const fs = require('fs');
 const mnemonic = "off neither whip umbrella skill monitor wall cup style fatal device month";
 const collateralToken = "0x8C086885624C5b823Cc6fcA7BFF54C454D6b5239";
-const _fpl = "Linear";
+const _fpl = 'RangeBond';
 const _gasPrice = 50;
 const _networkId = 80001;
 const _collateralPerPair = 1 * 10**18;
@@ -89,10 +89,30 @@ async function deployAthlete( _synthName, _synthSymbol, _expirationTimestamp, _a
 
   //#endregion
 
+  //#region Transactions-Params
+    // Transaction parameters
+    const transactionOptions = {
+      gas: 12000000, // 12MM is very high. Set this lower if you only have < 2 ETH or so in your wallet.
+      gasPrice: _gasPrice * 1000000000, // gasprice arg * 1 GWEI
+      from: account,
+    };
+  
+    console.log("transaction options:", transactionOptions);
+  
+    // Simulate transaction to test before sending to the network.
+    console.log("Simulating Deployment...");
+    const address = await lspCreator.methods.createLongShortPair(lspParams).call(transactionOptions);
+    console.log("Simulation successful. Expected Address:", address);
+  
+    // Since the simulated transaction succeeded, send the real one to the network.
+    const { transactionHash } = await lspCreator.methods.createLongShortPair(lspParams).send(transactionOptions);
+    console.log("Deployed in transaction:", transactionHash);
+  //#endregion
+
   //#region FPL-Parameters
   
     // Set the FPL parameters.
-    if (_fpl == "Linear") {
+    if (_fpl) {
       console.log("Setting FPL parameters...");
       // Set the deployed FPL address and lowerBound.
       console.log("fpl address:", _fpl);
@@ -135,25 +155,6 @@ async function deployAthlete( _synthName, _synthSymbol, _expirationTimestamp, _a
     }
   
   //#endregion
-
-
-
-  console.log("network id:", networkId);
-  // Transaction parameters
-  const transactionOptions = {
-    gas: 12000000, // 12MM is very high. Set this lower if you only have < 2 ETH or so in your wallet.
-    gasPrice: _gasPrice * 1000000000, // gasprice arg * 1 GWEI
-    from: account,
-  };
-
-  // Simulate transaction to test before sending to the network.
-  console.log("Simulating Deployment...");
-  const address = await lspCreator.methods.createLongShortPair(...Object.values(lspParams)).call(transactionOptions);
-  console.log("Simulation successful. Expected Address:", address);
-
-  // Since the simulated transaction succeeded, send the real one to the network.
-  const { transactionHash } = await lspCreator.methods.createLongShortPair(lspParams).send(transactionOptions);
-  console.log("Deployed in transaction:", transactionHash);
 
   process.exit(0);
 }
